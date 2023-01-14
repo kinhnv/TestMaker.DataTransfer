@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace DataTransfer.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UserQuestionsController : ControllerBase
     {
         private readonly ILogger<UserQuestionsController> _logger;
