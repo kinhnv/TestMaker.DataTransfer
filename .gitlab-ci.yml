@@ -26,8 +26,9 @@ build:
   before_script:
     - sed -i "s/pre-build-params_registry/$REGISTRY/g" ./**/Dockerfile
   script:
-    - docker build -t $REGISTRY/test-maker.data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/dataTransfer.Api/Dockerfile
+    - docker build -t $REGISTRY/test-maker.data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/DataTransfer.Api/Dockerfile
     - docker push $REGISTRY/test-maker.data-transfer:${VERSION}
+    - docker image rm $REGISTRY/test-maker.data-transfer:${VERSION}
 
 test:
   stage: test
