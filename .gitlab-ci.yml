@@ -1,0 +1,59 @@
+include: 'https://raw.githubusercontent.com/kinhnv/System.CommonPipeline/main/.prepare-ssh.yml'
+
+variables:
+  VERSION: "$CI_PIPELINE_ID"
+  ASPNETCORE_ENVIRONMENT: "Production"
+
+stages:
+  - build
+  - test
+  - deploy
+
+.build_tags:
+  tags:
+    - "shell"
+
+.deploy_tags:
+  tags:
+    - "shell"
+
+build:
+  stage: build
+  extends:
+    - .build_tags
+  only:
+    - master
+  before_script:
+    - sed -i "s/pre-build-params_registry/$REGISTRY/g" ./**/Dockerfile
+  script:
+    - docker build -t $REGISTRY/test-maker.data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/dataTransfer.Api/Dockerfile
+    - docker push $REGISTRY/test-maker.data-transfer:${VERSION}
+
+test:
+  stage: test
+  extends:
+    - .build_tags
+  only:
+    - master
+  needs: [build]
+  script:
+    - echo "test"
+    # - docker build -t test-business:latest -f TestMaker.TestService.UnitTests/Dockerfile .
+    # - docker run --rm -t test-business:latest dotnet test --logger:"console;verbosity=normal"
+    # - docker image rm test-business:latest
+        
+deploy:
+  stage: deploy
+  extends:
+    - .deploy_tags
+    - .prepare_ssh
+  only:
+    - master
+  needs: [test]
+  script:
+    - git clone $GITOPS_URL 
+    - cd gitops
+    - yq eval ".services.dataTransfer.tag = \"${VERSION}\"" -i ./test-maker/values.yaml
+    - git add ./test-maker/values.yaml
+    - git commit -m "change to version $VERSION"
+    - git push
