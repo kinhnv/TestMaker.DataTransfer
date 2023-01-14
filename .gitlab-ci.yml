@@ -22,7 +22,7 @@ build:
   extends:
     - .build_tags
   only:
-    - master
+    - main
   before_script:
     - sed -i "s/pre-build-params_registry/$REGISTRY/g" ./**/Dockerfile
   script:
@@ -34,7 +34,7 @@ test:
   extends:
     - .build_tags
   only:
-    - master
+    - main
   needs: [build]
   script:
     - echo "test"
@@ -48,7 +48,7 @@ deploy:
     - .deploy_tags
     - .prepare_ssh
   only:
-    - master
+    - main
   needs: [test]
   script:
     - git clone $GITOPS_URL 
