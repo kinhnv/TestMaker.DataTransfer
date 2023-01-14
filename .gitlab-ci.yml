@@ -54,7 +54,7 @@ deploy:
   script:
     - git clone $GITOPS_URL 
     - cd gitops
-    - yq eval ".services.dataTransfer.tag = \"${VERSION}\"" -i ./test-maker/values.yaml
+    - yq eval ".clients.dataTransfer.tag = \"${VERSION}\"" -i ./test-maker/values.yaml
     - git add ./test-maker/values.yaml
     - git commit -m "change to version $VERSION"
     - git push
