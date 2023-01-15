@@ -2,6 +2,7 @@ using DataTransfer.Api.Configurations;
 using DataTransfer.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace DataTransfer.Api.Controllers
 {
@@ -21,6 +22,8 @@ namespace DataTransfer.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]UserQuestionPostBody body)
         {
+            _logger.LogInformation(JsonConvert.SerializeObject(body));
+
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(_gatewayConfigurationOptions.Value.Url)
@@ -36,7 +39,9 @@ namespace DataTransfer.Api.Controllers
 
                     if (userQuestion?.Code == 200 && userQuestion?.Data != null)
                     {
-                        await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+                        var res2 = await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+
+                        return Ok(userQuestion);
                     }
                 }
             }
