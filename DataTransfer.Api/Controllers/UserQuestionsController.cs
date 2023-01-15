@@ -19,22 +19,25 @@ namespace DataTransfer.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Guid userId, Guid quesionId)
+        public async Task<IActionResult> Post([FromBody]UserQuestionPostBody body)
         {
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(_gatewayConfigurationOptions.Value.Url)
             };
 
-            var res = await httpClient.GetAsync($"api/Test/DataTransfer/UserQuestions?userId={userId}&questionId={quesionId}");
-
-            if (res.IsSuccessStatusCode)
+            if (body.After != null)
             {
-                var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<UserQuestion>>();
+                var res = await httpClient.GetAsync($"api/Test/DataTransfer/UserQuestions?userId={body.After.UserId}&questionId={body.After.QuestionId}");
 
-                if (userQuestion?.Code == 200 && userQuestion?.Data != null)
+                if (res.IsSuccessStatusCode)
                 {
-                    await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<UserQuestion>>();
+
+                    if (userQuestion?.Code == 200 && userQuestion?.Data != null)
+                    {
+                        await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+                    }
                 }
             }
 
