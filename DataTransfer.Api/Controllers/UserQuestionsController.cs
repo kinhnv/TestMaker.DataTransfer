@@ -20,7 +20,7 @@ namespace DataTransfer.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]UserQuestionPostBody body)
+        public async Task<IActionResult> Post([FromBody]PostBody<UserQuestionPostBody> body)
         {
             _logger.LogInformation(JsonConvert.SerializeObject(body));
 
@@ -35,23 +35,41 @@ namespace DataTransfer.Api.Controllers
 
                 if (res.IsSuccessStatusCode)
                 {
-                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<UserQuestion>>();
+                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<UserQuestionForDataTransfer>>();
 
                     if (userQuestion?.Code == 200 && userQuestion?.Data != null)
                     {
                         var res2 = await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
 
-                        return Ok(userQuestion);
+                        if (res2.IsSuccessStatusCode)
+                        {
+                            return Ok(JsonConvert.SerializeObject(new
+                            {
+                                message = "Update successful",
+                                userId = body.After.UserId,
+                                questionId = body.After.QuestionId
+                            }));
+                        }
                     }
                 }
             }
             else if (body.Before != null)
             {
                 await httpClient.DeleteAsync($"api/Event/DataTransfer/UserQuestions?userId={body.Before.UserId}&questionId={body.Before.QuestionId}");
-
+                return Ok(JsonConvert.SerializeObject(new
+                {
+                    message = "Delete successful",
+                    userId = body.Before.UserId,
+                    questionId = body.Before.QuestionId
+                }));
             }
 
-            return Ok();
+            return Ok(JsonConvert.SerializeObject(new
+            {
+                message = "Action error",
+                userId = body.After?.UserId ?? body.Before?.UserId,
+                questionId = body.After?.QuestionId ?? body.Before?.QuestionId
+            }));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DataTransfer.Api.Models
 {
-    public class UserQuestion
+    public class UserQuestionForDataTransfer
     {
         public Guid? UserId { get; set; }
 
