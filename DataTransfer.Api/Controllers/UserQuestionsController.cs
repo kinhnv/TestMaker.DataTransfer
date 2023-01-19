@@ -45,6 +45,11 @@ namespace DataTransfer.Api.Controllers
                     }
                 }
             }
+            else if (body.Before != null)
+            {
+                await httpClient.DeleteAsync($"api/Test/DataTransfer/UserQuestions?userId={body.Before.UserId}&questionId={body.Before.QuestionId}");
+
+            }
 
             return Ok();
         }
