@@ -31,15 +31,25 @@ namespace DataTransfer.Api.Controllers
 
             if (body.After != null)
             {
-                var res = await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/Questions", body.After);
+                var res = await httpClient.GetAsync($"api/Test/DataTransfer/Questions?questionId={body.After.QuestionId}");
 
                 if (res.IsSuccessStatusCode)
                 {
-                    return Ok(JsonConvert.SerializeObject(new
+                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<QuestionForDataTransfer>>();
+
+                    if (userQuestion?.Code == 200 && userQuestion?.Data != null)
                     {
-                        message = "Update successful",
-                        userId = body.After.QuestionId
-                    }));
+                        var res2 = await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/Questions", userQuestion.Data);
+
+                        if (res2.IsSuccessStatusCode)
+                        {
+                            return Ok(JsonConvert.SerializeObject(new
+                            {
+                                message = "Update successful",
+                                questionId = body.After.QuestionId
+                            }));
+                        }
+                    }
                 }
             }
             else if (body.Before != null)
