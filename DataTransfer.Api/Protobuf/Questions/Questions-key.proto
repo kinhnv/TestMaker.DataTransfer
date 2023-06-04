@@ -1,0 +1,6 @@
+syntax = "proto3";
+package testmaker_testservice.dbo.Questions;
+
+message Key {
+  string QuestionId = 1;
+}

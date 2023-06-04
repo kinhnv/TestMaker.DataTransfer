@@ -1,0 +1,37 @@
+syntax = "proto3";
+package testmaker_testservice.dbo.UserQuestions;
+
+message Envelope {
+  Value before = 1;
+  Value after = 2;
+  Source source = 3;
+  string op = 4;
+  int64 ts_ms = 5;
+  ConnectDefault1 transaction = 6;
+
+  message Value {
+    string UserId = 1;
+    string QuestionId = 2;
+    double Rank = 3;
+    int64 LastUpdate = 4;
+  }
+  message Source {
+    string version = 1;
+    string connector = 2;
+    string name = 3;
+    int64 ts_ms = 4;
+    string snapshot = 5;
+    string db = 6;
+    string sequence = 7;
+    string schema = 8;
+    string table = 9;
+    string change_lsn = 10;
+    string commit_lsn = 11;
+    int64 event_serial_no = 12;
+  }
+  message ConnectDefault1 {
+    string id = 1;
+    int64 total_order = 2;
+    int64 data_collection_order = 3;
+  }
+}

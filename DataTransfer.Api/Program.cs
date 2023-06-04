@@ -1,4 +1,9 @@
 using DataTransfer.Api.Configurations;
+using DataTransfer.Api.Configurations.KafkaConsumerConfigurations;
+using DataTransfer.Api.HostedServices;
+using DataTransfer.Api.KafkaConfigSetups;
+using DataTransfer.Api.KafkaConfigSetups.KafkaConsumerConfigSetups.KafkaQuestionConsumerConfigSetup;
+using DataTransfer.Api.KafkaConsumers;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddOptions<GatewayConfiguration>().Bind(builder.Configuration.GetSection("Gateway"));
+builder.Services.AddOptions<KafkaConfiguration>().Bind(builder.Configuration.GetSection("Kafka"));
+builder.Services.AddOptions<SchemaRegistryConfiguration>().Bind(builder.Configuration.GetSection("SchemaRegistry"));
+builder.Services.AddOptions<KafkaQuestionsConsumerConfiguration>().Bind(builder.Configuration.GetSection("KafkaQuestionsConsumer"));
+builder.Services.AddOptions<KafkaUserQuestionsConsumerConfiguration>().Bind(builder.Configuration.GetSection("KafkaUserQuestionsConsumer"));
+
+builder.Services.ConfigureOptions<SchemaRegistryConfigSetup>();
+
+builder.Services.ConfigureOptions<KafkaQuestionConsumerConfigSetup>();
+
+builder.Services.AddTransient<IQuestionsKafkaConsumer, QuestionsKafkaConsumer>();
+
+builder.Services.AddHostedService<QuestionsHostedService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
