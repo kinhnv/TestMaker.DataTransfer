@@ -8,8 +8,8 @@ using Microsoft.Extensions.Options;
 namespace DataTransfer.Api.KafkaConsumers
 {
     public abstract class KafkaConsumer<TKafkaConsumerConfig, TKey, TValue> : IKafkaConsumer<TKafkaConsumerConfig, TKey, TValue>
-        where TKafkaConsumerConfig : KafkaConsumerConfig 
-        where TKey : class, IMessage<TKey>, new() 
+        where TKafkaConsumerConfig : KafkaConsumerConfig
+        where TKey : class, IMessage<TKey>, new()
         where TValue : class, IMessage<TValue>, new()
     {
         private readonly TKafkaConsumerConfig _kafkaConsumerConfig;
@@ -29,15 +29,14 @@ namespace DataTransfer.Api.KafkaConsumers
             {
                 return;
             }
+            IConsumer<TKey, TValue>? consumer = null;
 
-            while (true)
+            try
             {
-                IConsumer<TKey, TValue>? consumer = null;
+                consumer = SetupConsumer();
 
-                try
+                while (true)
                 {
-                    consumer = SetupConsumer();
-
                     consumer.Subscribe(_kafkaConsumerConfig.Topic);
 
                     var message = consumer.Consume(cancellationToken);
@@ -46,17 +45,17 @@ namespace DataTransfer.Api.KafkaConsumers
 
                     consumer.Commit();
                 }
-                catch (Exception e)
+            }
+            catch (Exception e)
+            {
+                if (consumer != null)
                 {
-                    if (consumer != null)
-                    {
-                        consumer.Close();
-                    }
-                    _logger.LogInformation("Restart after 5000 because error: {Error}", e.Message);
-                    Thread.Sleep(5000);
-
-                    await InvokeAsync(cancellationToken);
+                    consumer.Close();
                 }
+                _logger.LogInformation("Restart after 5000 because error: {Error}", e.Message);
+                Thread.Sleep(5000);
+
+                await InvokeAsync(cancellationToken);
             }
         }
 
