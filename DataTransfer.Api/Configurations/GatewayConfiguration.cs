@@ -24,6 +24,11 @@ namespace DataTransfer.Api.Configurations
         {
             get
             {
+                if (Port == 80)
+                {
+                    return $"{Scheme}://{Host}";
+                }
+
                 return $"{Scheme}://{Host}:{Port}";
             }
         }
