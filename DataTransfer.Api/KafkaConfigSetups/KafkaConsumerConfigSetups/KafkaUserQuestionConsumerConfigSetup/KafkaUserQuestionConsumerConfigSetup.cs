@@ -1,22 +1,23 @@
-﻿using DataTransfer.Api.Configurations;
-using DataTransfer.Api.Configurations.KafkaConsumerConfigurations;
+﻿using DataTransfer.Api.Configurations.KafkaConsumerConfigurations;
+using DataTransfer.Api.Configurations;
+using DataTransfer.Api.KafkaConfigSetups.KafkaConsumerConfigSetups.KafkaQuestionConsumerConfigSetup;
 using Microsoft.Extensions.Options;
 
-namespace DataTransfer.Api.KafkaConfigSetups.KafkaConsumerConfigSetups.KafkaQuestionConsumerConfigSetup
+namespace DataTransfer.Api.KafkaConfigSetups.KafkaConsumerConfigSetups.KafkaUserQuestionConsumerConfigSetup
 {
-    public class KafkaQuestionConsumerConfigSetup : IConfigureOptions<KafkaQuestionConsumerConfig>
+    public class KafkaUserQuestionConsumerConfigSetup : IConfigureOptions<KafkaUserQuestionConsumerConfig>
     {
         private readonly KafkaConfiguration _kafkaConfiguration;
-        private readonly KafkaQuestionsConsumerConfiguration _kafkaQuestionsConsumerConfiguration;
+        private readonly KafkaUserQuestionsConsumerConfiguration _kafkaQuestionsConsumerConfiguration;
 
-        public KafkaQuestionConsumerConfigSetup(
+        public KafkaUserQuestionConsumerConfigSetup(
             IOptions<KafkaConfiguration> kafkaConfigurationOptions,
-            IOptions<KafkaQuestionsConsumerConfiguration> kafkaQuestionsConsumerConfigurationOptions)
+            IOptions<KafkaUserQuestionsConsumerConfiguration> kafkaQuestionsConsumerConfigurationOptions)
         {
             _kafkaConfiguration = kafkaConfigurationOptions.Value;
             _kafkaQuestionsConsumerConfiguration = kafkaQuestionsConsumerConfigurationOptions.Value;
         }
-        public void Configure(KafkaQuestionConsumerConfig options)
+        public void Configure(KafkaUserQuestionConsumerConfig options)
         {
             options.BootstrapServers = _kafkaConfiguration.BootstrapServers;
             options.AutoOffsetReset = _kafkaConfiguration.AutoOffsetReset;
