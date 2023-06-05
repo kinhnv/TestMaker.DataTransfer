@@ -52,7 +52,7 @@ namespace DataTransfer.Api.KafkaConsumers
                     {
                         consumer.Close();
                     }
-                    _logger.LogInformation("Restart after 5000 because error: {Error}", e.Message)
+                    _logger.LogInformation("Restart after 5000 because error: {Error}", e.Message);
                     Thread.Sleep(5000);
 
                     await InvokeAsync(cancellationToken);
