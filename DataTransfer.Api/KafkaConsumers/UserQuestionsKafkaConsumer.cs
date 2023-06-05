@@ -10,16 +10,22 @@ namespace DataTransfer.Api.KafkaConsumers
     public class UserQuestionsKafkaConsumer : KafkaConsumer<KafkaUserQuestionConsumerConfig, Key, Envelope>, IUserQuestionsKafkaConsumer
     {
         private readonly GatewayConfiguration _gatewayConfiguration;
+        private readonly ILogger<UserQuestionsKafkaConsumer> _logger;
 
         public UserQuestionsKafkaConsumer(
             IOptions<KafkaUserQuestionConsumerConfig> kafkaConsumerConfigOptions,
-            IOptions<GatewayConfiguration> gatewayConfigurationOptions) : base(kafkaConsumerConfigOptions)
+            IOptions<GatewayConfiguration> gatewayConfigurationOptions,
+            ILogger<UserQuestionsKafkaConsumer> logger) : base(kafkaConsumerConfigOptions, logger)
         {
             _gatewayConfiguration = gatewayConfigurationOptions.Value;
+            _logger = logger;
         }
 
         public async override Task HandleAsync(Key key, Envelope value)
         {
+            if (value == null)
+                return;
+
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(_gatewayConfiguration.Url)
@@ -36,12 +42,14 @@ namespace DataTransfer.Api.KafkaConsumers
                     if (userQuestion?.Code == 200 && userQuestion?.Data != null)
                     {
                         await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+                        _logger.LogInformation("Create {UserQuestions}", userQuestion.Data);
                     }
                 }
             }
             else if (value.Before != null)
             {
                 await httpClient.DeleteAsync($"api/Event/DataTransfer/UserQuestions?userId={value.Before.UserId}&questionId={value.Before.QuestionId}");
+                _logger.LogInformation("Delete {QuestionId} - {UserId}", value.Before.QuestionId, value.Before.UserId);
             }
         }
     }

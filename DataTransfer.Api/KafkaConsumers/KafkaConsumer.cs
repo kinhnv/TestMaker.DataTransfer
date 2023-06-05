@@ -13,10 +13,12 @@ namespace DataTransfer.Api.KafkaConsumers
         where TValue : class, IMessage<TValue>, new()
     {
         private readonly TKafkaConsumerConfig _kafkaConsumerConfig;
+        private readonly ILogger<KafkaConsumer<TKafkaConsumerConfig, TKey, TValue>> _logger;
 
-        public KafkaConsumer(IOptions<TKafkaConsumerConfig> kafkaConsumerConfigOptions)
+        public KafkaConsumer(IOptions<TKafkaConsumerConfig> kafkaConsumerConfigOptions, ILogger<KafkaConsumer<TKafkaConsumerConfig, TKey, TValue>> logger)
         {
             _kafkaConsumerConfig = kafkaConsumerConfigOptions.Value;
+            _logger = logger;
         }
 
         public abstract Task HandleAsync(TKey key, TValue value);
@@ -44,13 +46,13 @@ namespace DataTransfer.Api.KafkaConsumers
 
                     consumer.Commit();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     if (consumer != null)
                     {
                         consumer.Close();
                     }
-
+                    _logger.LogInformation("Restart after 5000 because error: {Error}", e.Message)
                     Thread.Sleep(5000);
 
                     await InvokeAsync(cancellationToken);

@@ -10,16 +10,22 @@ namespace DataTransfer.Api.KafkaConsumers
     public class QuestionsKafkaConsumer : KafkaConsumer<KafkaQuestionConsumerConfig, Key, Envelope>, IQuestionsKafkaConsumer
     {
         private readonly GatewayConfiguration _gatewayConfiguration;
+        private readonly ILogger<QuestionsKafkaConsumer> _logger;
 
         public QuestionsKafkaConsumer(
             IOptions<KafkaQuestionConsumerConfig> kafkaConsumerConfigOptions,
-            IOptions<GatewayConfiguration> gatewayConfigurationOptions) : base(kafkaConsumerConfigOptions)
+            IOptions<GatewayConfiguration> gatewayConfigurationOptions,
+            ILogger<QuestionsKafkaConsumer> logger) : base(kafkaConsumerConfigOptions, logger)
         {
             _gatewayConfiguration = gatewayConfigurationOptions.Value;
+            _logger = logger;
         }
 
         public override async Task HandleAsync(Key key, Envelope value)
         {
+            if (value == null)
+                return;
+
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(_gatewayConfiguration.Url)
@@ -31,17 +37,19 @@ namespace DataTransfer.Api.KafkaConsumers
 
                 if (res.IsSuccessStatusCode)
                 {
-                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<QuestionForDataTransfer>>();
+                    var question = await res.Content.ReadFromJsonAsync<ServiceResult<QuestionForDataTransfer>>();
 
-                    if (userQuestion?.Code == 200 && userQuestion?.Data != null)
+                    if (question?.Code == 200 && question?.Data != null)
                     {
-                        await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/Questions", userQuestion.Data);
+                        await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/Questions", question.Data);
+                        _logger.LogInformation("Create {Questions}", question.Data);
                     }
                 }
             }
             else if (value.Before != null)
             {
-                await httpClient.DeleteAsync($"api/Event/DataTransfer/UserQuestions?questionId={value.Before.QuestionId}");
+                await httpClient.DeleteAsync($"api/Event/DataTransfer/Questions?questionId={value.Before.QuestionId}");
+                _logger.LogInformation("Delete {Questions}", value.Before.QuestionId);
             }
         }
     }
