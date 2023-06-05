@@ -42,7 +42,7 @@ namespace DataTransfer.Api.KafkaConsumers
                     if (question?.Code == 200 && question?.Data != null)
                     {
                         await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/Questions", question.Data);
-                        _logger.LogInformation("Create {Questions}", question.Data);
+                        _logger.LogInformation("Create {Questions}", JsonConvert.SerializeObject(question.Data));
                     }
                 }
             }
