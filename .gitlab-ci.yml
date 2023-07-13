@@ -39,9 +39,6 @@ test:
   needs: [build]
   script:
     - echo "test"
-    # - docker build -t test-business:latest -f TestMaker.TestService.UnitTests/Dockerfile .
-    # - docker run --rm -t test-business:latest dotnet test --logger:"console;verbosity=normal"
-    # - docker image rm test-business:latest
         
 deploy:
   stage: deploy
