@@ -55,6 +55,7 @@ deploy:
     - git add ./test-maker/values.yaml
     - git commit -m "change to version $VERSION"
     - git push
+    - cd .. && rm -rf gitops
     - git remote set-url origin $GITHUB_URL
     - >
       if [ `git branch --list main` ]; then
