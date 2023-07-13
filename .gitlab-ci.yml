@@ -1,4 +1,4 @@
-include: 'https://gitlab.com/i3rothers/system/commonpipeline/-/raw/main/.prepare-ssh.yml'
+include: 'https://raw.githubusercontent.com/kinhnv/System.CommonPipeline/main/.prepare-ssh.yml'
 
 variables:
   VERSION: "$CI_PIPELINE_ID"
@@ -58,3 +58,13 @@ deploy:
     - git add ./test-maker/values.yaml
     - git commit -m "change to version $VERSION"
     - git push
+    - git remote set-url origin $GITHUB_URL
+    - >
+      if [ `git branch --list main` ]; then
+        echo "push to existing branch"; 
+        git push -u origin HEAD:main;
+      else
+        echo "create new branch";
+        git checkout -b main; 
+        git push -u origin main;
+      fi
