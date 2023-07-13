@@ -1,4 +1,4 @@
-include: 'https://raw.githubusercontent.com/kinhnv/System.CommonPipeline/main/.prepare-ssh.yml'
+include: 'https://raw.githubusercontent.com/kinhnv/Platform.Common/main/pipeline/.prepare-ssh.yml'
 
 variables:
   VERSION: "$CI_PIPELINE_ID"
