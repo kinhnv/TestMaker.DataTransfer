@@ -7,6 +7,7 @@ EXPOSE 80
 FROM pre-build-params_registry/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["DataTransfer.Api/DataTransfer.Api.csproj", "DataTransfer.Api/"]
+RUN dotnet nuget add source --username pre-build-params_gitlab-source-username --password pre-build-params_gitlab-source-token --store-password-in-clear-text --name github "pre-build-params_gitlab-source-url"
 RUN dotnet restore "DataTransfer.Api/DataTransfer.Api.csproj"
 COPY . .
 WORKDIR "/src/DataTransfer.Api"

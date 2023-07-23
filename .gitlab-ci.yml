@@ -25,6 +25,9 @@ build:
     - main
   before_script:
     - sed -i "s/pre-build-params_registry/$REGISTRY/g" ./**/Dockerfile
+    - sed -i "s/pre-build-params_gitlab-source-username/$GITLAB_SOURCE_USERNAME/g" ./**/Dockerfile
+    - sed -i "s/pre-build-params_gitlab-source-token/$GITLAB_SOURCE_TOKEN/g" ./**/Dockerfile
+    - sed -i "s,pre-build-params_gitlab-source-url,$GITLAB_SOURCE_URL,g" ./**/Dockerfile
   script:
     - docker build -t $REGISTRY/test-maker.data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/DataTransfer.Api/Dockerfile
     - docker push $REGISTRY/test-maker.data-transfer:${VERSION}
