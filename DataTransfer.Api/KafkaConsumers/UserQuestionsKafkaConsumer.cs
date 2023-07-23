@@ -4,6 +4,7 @@ using DataTransfer.Api.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using TestmakerTestservice.Dbo.UserQuestions;
+using i3rothers.TestServiceClient;
 
 namespace DataTransfer.Api.KafkaConsumers
 {
@@ -31,20 +32,14 @@ namespace DataTransfer.Api.KafkaConsumers
                 BaseAddress = new Uri(_gatewayConfiguration.Url)
             };
 
+            var userQuestionsDataTransferClient = new UserQuestionsDataTransferClient(_gatewayConfiguration.Url, httpClient);
+
             if (value.After != null)
             {
-                var res = await httpClient.GetAsync($"api/Test/DataTransfer/UserQuestions?userId={value.After.UserId}&questionId={value.After.QuestionId}");
+                var userQuestion = await userQuestionsDataTransferClient.GetUserQuestionAsync(new Guid(value.After.UserId), new Guid(value.After.QuestionId));
 
-                if (res.IsSuccessStatusCode)
-                {
-                    var userQuestion = await res.Content.ReadFromJsonAsync<ServiceResult<UserQuestionForDataTransfer>>();
-
-                    if (userQuestion?.Code == 200 && userQuestion?.Data != null)
-                    {
-                        await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
-                        _logger.LogInformation("Create {UserQuestions}", JsonConvert.SerializeObject(userQuestion.Data));
-                    }
-                }
+                await httpClient.PostAsJsonAsync($"api/Event/DataTransfer/UserQuestions", userQuestion.Data);
+                _logger.LogInformation("Create {UserQuestions}", JsonConvert.SerializeObject(userQuestion.Data));
             }
             else if (value.Before != null)
             {
