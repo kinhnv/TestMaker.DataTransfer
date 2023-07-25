@@ -1,10 +1,10 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM pre-build-params_registry/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM pre-build-params_registry/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["DataTransfer.Api/DataTransfer.Api.csproj", "DataTransfer.Api/"]
 RUN dotnet nuget add source --username pre-build-params_gitlab-source-username --password pre-build-params_gitlab-source-token --store-password-in-clear-text --name github "pre-build-params_gitlab-source-url"

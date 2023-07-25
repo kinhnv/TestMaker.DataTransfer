@@ -24,14 +24,13 @@ build:
   only:
     - main
   before_script:
-    - sed -i "s/pre-build-params_registry/$REGISTRY/g" ./**/Dockerfile
     - sed -i "s/pre-build-params_gitlab-source-username/$GITLAB_SOURCE_USERNAME/g" ./**/Dockerfile
     - sed -i "s/pre-build-params_gitlab-source-token/$GITLAB_SOURCE_TOKEN/g" ./**/Dockerfile
     - sed -i "s,pre-build-params_gitlab-source-url,$GITLAB_SOURCE_URL,g" ./**/Dockerfile
   script:
-    - docker build -t $REGISTRY/test-maker.data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/DataTransfer.Api/Dockerfile
-    - docker push $REGISTRY/test-maker.data-transfer:${VERSION}
-    - docker image rm $REGISTRY/test-maker.data-transfer:${VERSION}
+    - docker build -t registry.gitlab.com/i3rothers/test-maker/data-transfer:${VERSION} ${CI_PROJECT_DIR} -f ${CI_PROJECT_DIR}/DataTransfer.Api/Dockerfile
+    - docker push registry.gitlab.com/i3rothers/test-maker/data-transfer:${VERSION}
+    - docker image rm registry.gitlab.com/i3rothers/test-maker/data-transfer:${VERSION}
 
 test:
   stage: test
